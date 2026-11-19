@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MiDNI</title>
+
+  <!-- ==========================================
+       SOPORTE Y OPTIMIZACIÓN IPHONE / IOS (PWA)
+       ========================================== -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="MiDNI">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="apple-touch-icon" href="icono_app.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icono_app.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    window.showQrOptionsScreen = function () {
+      const el = document.getElementById("qr-options-screen");
+      if (!el) return;
+      el.classList.remove("hidden");
+      el.style.display = "flex";
+      requestAnimationFrame(() => {
+        el.style.transform = "translateX(0)";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        el.classList.add("visible");
+      });
+    };
+    window.hideQrOptionsScreen = function () {
+      const el = document.getElementById("qr-options-screen");
+      if (!el) return;
+      el.style.transform = "translateX(100%)";
+      el.style.opacity = "0";
+      el.style.pointerEvents = "none";
+      el.classList.remove("visible");
+      setTimeout(() => {
+        el.style.display = "none";
+        el.classList.add("hidden");
+      }, 280);
+    };
+    window.showScannerScreen = function () {
+      const el = document.getElementById("scanner-screen");
+      if (!el) return;
+      el.classList.remove("hidden");
+      el.style.display = "flex";
+      requestAnimationFrame(() => {
+        el.style.transform = "translateX(0)";
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+        el.classList.add("visible");
+      });
+      if (typeof window.onScannerOpened === "function") window.onScannerOpened();
+    };
+    window.hideScannerScreen = function () {
+      const el = document.getElementById("scanner-screen");
+      if (!el) return;
+      el.style.transform = "translateX(100%)";
+      el.style.opacity = "0";
+      el.style.pointerEvents = "none";
+      el.classList.remove("visible");
+      setTimeout(() => {
+        el.style.display = "none";
+        el.classList.add("hidden");
+      }, 280);
+      if (typeof window.onScannerClosed === "function") window.onScannerClosed();
+    };
+  </script>
+</head>
+
+<body>
+
+  <!-- Pantalla de Carga (Splash Screen) -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-container">
+      <img src="pantalla_carga.jpeg" alt="Pantalla de Carga" id="splash-img"
+        onerror="this.style.display='none'; document.getElementById('splash-placeholder').style.display='flex';">
+      <!-- Indicador visual provisional si la imagen aún no se ha copiado -->
+      <div id="splash-placeholder" class="splash-placeholder">
+        <div class="spinner"></div>
+        <p>Coloca <strong>pantalla_carga.jpg</strong> aquí</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Pantalla estilo MIDNI) -->
+  <main id="app-container" class="app-container hidden">
+    <!-- Barra superior -->
+    <header class="app-header">
+      <button id="btn-open-menu" type="button" class="icon-btn" aria-label="Menú"
+        onclick="window.openSideDrawer && window.openSideDrawer()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8"
+          stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="logo">
+        <img src="logo.png" alt="MIDNI" class="logo-img">
+      </div>
+
+      <div class="header-right">
+        <button id="btn-open-scanner" type="button" class="icon-btn" aria-label="Escanear"
+          onclick="window.showScannerScreen && window.showScannerScreen()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8V5a2 2 0 0 1 2-2h3"></path>
+            <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+            <path d="M21 16v3a2 2 0 0 1-2 2h-3"></path>
+            <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenedor de las ondas: onda viajera dibujada sobre la imagen nítida original -->
+    <div class="waves-container">
+      <canvas id="waves-canvas" class="waves-bg-img" aria-label="Líneas de seguridad"></canvas>
+    </div>
+
+    <!-- Sección de Perfil y Botonera pegada ABAJO DEL TODO -->
+    <div class="profile-section">
+      <!-- Foto de la persona sin fondo -->
+      <div class="profile-photo-wrapper">
+        <img src="foto_perfil.png" alt="Foto DNI" id="profile-img" class="profile-img">
+      </div>
+
+      <!-- Saludo y Botón -->
+      <div class="user-info">
+        <span class="greeting-sub">HOLA</span>
+        <h1 class="user-name">ÁNGEL</h1>
+        <button id="btn-ver-dni" class="btn-primary">
+          <span>Ver mi DNI</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Logotipo oficial de la Policía Nacional abajo del todo -->
+    <footer class="app-footer">
+      <img src="logo_policia.png" alt="Policía Nacional" class="footer-police-logo">
+    </footer>
+  </main>
+
+  <!-- ========================================================
+       MENÚ LATERAL DESPLEGABLE OFICIAL (DRAWER MIDNI)
+       ======================================================== -->
+  <div id="side-drawer-backdrop" class="side-drawer-backdrop hidden"
+    onclick="window.closeSideDrawer && window.closeSideDrawer()"></div>
+  <aside id="side-drawer" class="side-drawer hidden" aria-hidden="true">
+    <!-- Cabecera del menú con perfil de usuario y logo -->
+    <div class="drawer-header">
+      <div class="drawer-header-top">
+        <img src="logo.png" alt="MiDNI" class="drawer-logo">
+        <button id="btn-close-drawer" type="button" class="drawer-btn-close" aria-label="Cerrar menú"
+          onclick="window.closeSideDrawer && window.closeSideDrawer()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="drawer-user-card">
+        <div class="drawer-avatar-wrap">
+          <img src="foto_perfil.png" alt="Foto Perfil" class="drawer-avatar-img">
+        </div>
+        <div class="drawer-user-info">
+          <span class="drawer-user-name">ALEJANDRA DE LA TORRE</span>
+          <span class="drawer-user-dni">DNI: 04••••8J</span>
+          <span class="drawer-badge-status">
+            <span class="drawer-status-dot"></span> Documento activo
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de opciones del menú oficial -->
+    <nav class="drawer-nav">
+      <!-- 1. Inicio -->
+      <button type="button" class="drawer-nav-item active" onclick="window.closeSideDrawer && window.closeSideDrawer()">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Inicio</span>
+      </button>
+
+      <!-- 2. Ver mi DNI -->
+      <button type="button" class="drawer-nav-item" onclick="window.drawerGoToDni && window.drawerGoToDni()">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Ver mi DNI</span>
+      </button>
+
+      <!-- 3. Escanear QR -->
+      <button type="button" class="drawer-nav-item" onclick="window.drawerGoToScanner && window.drawerGoToScanner()">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8V5a2 2 0 0 1 2-2h3"></path>
+            <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+            <path d="M21 16v3a2 2 0 0 1-2 2h-3"></path>
+            <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Escanear QR</span>
+      </button>
+
+      <!-- 4. Ajustes y Seguridad -->
+      <button type="button" class="drawer-nav-item"
+        onclick="window.openDrawerInfoModal && window.openDrawerInfoModal('ajustes')">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Ajustes y Seguridad</span>
+      </button>
+
+      <div class="drawer-divider"></div>
+
+      <!-- 5. Ayuda y Preguntas frecuentes -->
+      <button type="button" class="drawer-nav-item"
+        onclick="window.openDrawerInfoModal && window.openDrawerInfoModal('ayuda')">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Ayuda y Preguntas frecuentes</span>
+      </button>
+
+      <!-- 6. Términos y Privacidad -->
+      <button type="button" class="drawer-nav-item"
+        onclick="window.openDrawerInfoModal && window.openDrawerInfoModal('privacidad')">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Términos y Privacidad</span>
+      </button>
+
+      <!-- 7. Acerca de MiDNI -->
+      <button type="button" class="drawer-nav-item"
+        onclick="window.openDrawerInfoModal && window.openDrawerInfoModal('acerca')">
+        <span class="drawer-item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </span>
+        <span class="drawer-item-label">Acerca de MiDNI</span>
+      </button>
+    </nav>
+
+    <!-- Pie del menú lateral -->
+    <div class="drawer-footer">
+      <img src="logo_policia.png" alt="Policía Nacional" class="drawer-police-logo">
+      <span class="drawer-version-tag">Versión 2.6 • Policía Nacional</span>
+    </div>
+  </aside>
+
+  <!-- Modal informativo del menú lateral (Ajustes, Ayuda, Términos, Acerca de) -->
+  <div id="drawer-info-modal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="drawer-info-sheet">
+      <div class="sheet-handle"></div>
+      <div class="drawer-info-header">
+        <h2 id="drawer-info-title" class="drawer-info-title">Ajustes y Seguridad</h2>
+        <button type="button" class="drawer-info-close"
+          onclick="window.closeDrawerInfoModal && window.closeDrawerInfoModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="drawer-info-body" class="drawer-info-body"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PANTALLA DE "VER MI DNI"
+       ======================================================== -->
+  <!-- ========================================================
+       PANTALLA DE "VER MI DNI" (CALCADA A LA REFERENCIA OFICIAL)
+       ======================================================== -->
+  <section id="dni-screen" class="dni-screen hidden">
+    <!-- 1. Cabecera superior con botón volver y logo MiDNI -->
+    <header class="dni-header">
+      <button id="btn-back-home" class="header-back-btn" aria-label="Volver">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#162a4d" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="logo">
+        <img src="logo.png" alt="MIDNI" class="logo-img">
+      </div>
+
+      <div class="header-right-spacer"></div>
+    </header>
+
+    <!-- 2. Banda de ondas de seguridad justo debajo de la cabecera -->
+    <div class="dni-waves-strip">
+      <canvas id="dni-waves-canvas" class="dni-waves-canvas"></canvas>
+    </div>
+
+    <!-- 3. Bloque superior fijo: Identidad y Botón Mostrar DNI (permanecen fijos) -->
+    <div class="dni-fixed-top">
+      <!-- Bloque de Identidad (Foto a la izquierda, Escudo/Reino y Banderas a la derecha) -->
+      <div class="dni-identity-row">
+        <!-- Foto de la persona (sin marco, integrada con fondo transparente/blanco) -->
+        <div class="dni-photo-container">
+          <img src="foto_perfil.png" alt="Fotografía Alejandra de la Torre Garcia" class="dni-person-photo"
+            onerror="this.src='fotocarnet.jpeg'">
+        </div>
+
+        <!-- Columna de Escudo, Textos Oficiales y Banderas -->
+        <div class="dni-official-col">
+          <!-- Banderas en la esquina superior derecha -->
+          <div class="dni-flags-stack">
+            <!-- Bandera de España -->
+            <div class="flag-es" title="España">
+              <span class="flag-es-red"></span>
+              <span class="flag-es-yellow"></span>
+              <span class="flag-es-red"></span>
+            </div>
+            <!-- Bandera Unión Europea con "ES" -->
+            <div class="flag-eu" title="Unión Europea">
+              <div class="flag-eu-stars-circle">
+                <span>★</span><span>★</span><span>★</span><span>★</span>
+                <span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <span class="flag-eu-code">ES</span>
+            </div>
+          </div>
+
+          <!-- Escudo de España centrado sobre el texto -->
+          <div class="dni-escudo-wrapper">
+            <img src="escudo_espana.png" alt="Escudo de España" class="dni-escudo-img">
+          </div>
+
+          <!-- Textos: REINO DE ESPAÑA / Documento Nacional de Identidad -->
+          <div class="dni-title-text-group">
+            <h2 class="dni-reino-title">REINO DE<br>ESPAÑA</h2>
+            <p class="dni-doc-subtitle">Documento Nacional<br>de Identidad</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón ancho "Mostrar mi DNI" con icono QR -->
+      <div class="dni-btn-row">
+        <button id="btn-mostrar-qr" type="button" class="btn-mostrar-dni"
+          onclick="window.showQrOptionsScreen && window.showQrOptionsScreen()">
+          <span>Mostrar mi DNI</span>
+          <svg class="qr-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+            <rect x="7" y="7" width="1" height="1"></rect>
+            <rect x="17" y="7" width="1" height="1"></rect>
+            <rect x="7" y="17" width="1" height="1"></rect>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. Contenedor con scroll vertical ÚNICAMENTE para los campos por debajo del botón QR -->
+    <div id="dni-fields-scroll" class="dni-fields-scroll">
+      <!-- Lista vertical de campos de datos personales (en orden oficial MiDNI) -->
+      <div class="dni-fields-list">
+        <div class="field-item">
+          <span class="field-title">Número de DNI</span>
+          <span id="dni-number" class="field-data">74541939C</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Nombre</span>
+          <span class="field-data">ÁNGEL</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Apellidos</span>
+          <span class="field-data">Bautista Ruiz</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Fecha de nacimiento</span>
+          <span class="field-data">28-12-2007</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Sexo</span>
+          <span class="field-data">M</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Lugar de nacimiento</span>
+          <span class="field-data">MOTRIL (GRANADA)</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Nacionalidad</span>
+          <span class="field-data">ESPAÑOLA</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Hijo/a de</span>
+          <span class="field-data">ANGEL, INMACULADA</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Domicilio completo</span>
+          <span class="field-data">C. NAVARRA 6, MOTRIL (GRANADA)</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Fecha de validez</span>
+          <span class="field-data">14-02-2027</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Número de soporte</span>
+          <span class="field-data">CBP139607</span>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Certificado de Autenticación</span>
+          <div class="field-data-row">
+            <span class="cert-status-badge"><span class="cert-status-dot"></span>Activo</span>
+            <span class="cert-expiry-text">Caduca: 14-02-2027</span>
+          </div>
+        </div>
+
+        <div class="field-item">
+          <span class="field-title">Certificado de Firma</span>
+          <div class="field-data-row">
+            <span class="cert-status-badge"><span class="cert-status-dot"></span>Activo</span>
+            <span class="cert-expiry-text">Caduca: 14-02-2027</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra azul fija inferior: Información visible XX segundos -->
+    <div id="dni-timer-bar" class="dni-timer-bar">
+      <span id="dni-timer-text" class="dni-timer-text">Información visible 60 segundos</span>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       PANTALLA DE "MOSTRAR TU DNI" (ELECCIÓN DE DATOS PARA QR)
+       ======================================================== -->
+  <section id="qr-options-screen" class="qr-options-screen hidden">
+    <!-- Cabecera superior con botón volver y logo oficial -->
+    <header class="qr-options-header">
+      <button id="btn-back-qr-options" type="button" class="header-back-btn" aria-label="Volver"
+        onclick="window.hideQrOptionsScreen && window.hideQrOptionsScreen()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#162a4d" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="logo">
+        <img src="logo.png" alt="MIDNI" class="logo-img">
+      </div>
+
+      <div class="header-right-spacer"></div>
+    </header>
+
+    <!-- Contenido desplazable -->
+    <div class="qr-options-content">
+      <!-- Ilustración superior de la mano sujetando el móvil -->
+      <div class="qr-ill-wrapper">
+        <svg class="qr-ill-svg" viewBox="0 0 260 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Fondo blob celeste suave orgánico -->
+          <path
+            d="M 75 145 C 42 105 60 50 105 30 C 150 10 195 28 210 70 C 225 115 195 160 150 178 C 112 192 90 170 75 145 Z"
+            fill="#bfe0f8" />
+
+          <!-- Teléfono inteligente -->
+          <rect x="100" y="40" width="52" height="106" rx="8" fill="#ffffff" stroke="#162846" stroke-width="2.2" />
+
+          <!-- Altavoz / Notch superior -->
+          <line x1="117" y1="45" x2="135" y2="45" stroke="#162846" stroke-width="1.8" stroke-linecap="round" />
+
+          <!-- Barra Home inferior -->
+          <line x1="115" y1="138" x2="137" y2="138" stroke="#162846" stroke-width="1.8" stroke-linecap="round" />
+
+          <!-- Icono QR en pantalla -->
+          <g transform="translate(112, 57)">
+            <!-- Top-Left Finder -->
+            <rect x="0" y="0" width="9" height="9" rx="1.2" stroke="#162846" stroke-width="1.8" fill="none" />
+            <rect x="2.5" y="2.5" width="4" height="4" fill="#162846" />
+
+            <!-- Top-Right Finder -->
+            <rect x="18" y="0" width="9" height="9" rx="1.2" stroke="#162846" stroke-width="1.8" fill="none" />
+            <rect x="20.5" y="2.5" width="4" height="4" fill="#162846" />
+
+            <!-- Bottom-Left Finder -->
+            <rect x="0" y="18" width="9" height="9" rx="1.2" stroke="#162846" stroke-width="1.8" fill="none" />
+            <rect x="2.5" y="20.5" width="4" height="4" fill="#162846" />
+
+            <!-- Módulos de datos -->
+            <rect x="12" y="1" width="3" height="3" fill="#162846" />
+            <rect x="12" y="6" width="3" height="4" fill="#162846" />
+            <rect x="6.5" y="11.5" width="3.5" height="3" fill="#162846" />
+            <rect x="12" y="11.5" width="3" height="3" fill="#162846" />
+            <rect x="17" y="11.5" width="3.5" height="3" fill="#162846" />
+            <rect x="22.5" y="11.5" width="3.5" height="3" fill="#162846" />
+            <rect x="12" y="16.5" width="3" height="3" fill="#162846" />
+            <rect x="18" y="19.5" width="3" height="3" fill="#162846" />
+            <rect x="23" y="22.5" width="3" height="3" fill="#162846" />
+          </g>
+
+          <!-- Texto DNI -->
+          <text x="126" y="110" font-family="'Montserrat', sans-serif" font-size="11" font-weight="900" fill="#162846"
+            text-anchor="middle" letter-spacing="0.4">DNI</text>
+
+          <!-- Dedos izquierdos envolviendo el móvil -->
+          <path d="M 100 66 C 89 66 89 78 100 78" stroke="#162846" stroke-width="2.2" stroke-linecap="round"
+            fill="#ffffff" />
+          <path d="M 100 85 C 87 85 87 98 100 98" stroke="#162846" stroke-width="2.2" stroke-linecap="round"
+            fill="#ffffff" />
+          <path d="M 100 106 C 89 106 89 118 100 118" stroke="#162846" stroke-width="2.2" stroke-linecap="round"
+            fill="#ffffff" />
+          <path d="M 100 125 C 91 125 91 136 100 136" stroke="#162846" stroke-width="2.2" stroke-linecap="round"
+            fill="#ffffff" />
+
+          <!-- Mano y muñeca derecha -->
+          <path
+            d="M 152 56 C 160 53 164 62 166 74 C 170 89 175 101 182 111 C 192 124 191 140 181 153 C 173 163 164 171 157 180"
+            stroke="#162846" stroke-width="2.2" stroke-linecap="round" fill="none" />
+
+          <!-- Palma bajo el móvil -->
+          <path d="M 130 146 C 133 154 139 159 148 161 C 155 163 158 172 160 180" stroke="#162846" stroke-width="2.2"
+            stroke-linecap="round" fill="none" />
+        </svg>
+      </div>
+
+      <!-- Títulos centrales -->
+      <h2 class="qr-options-title">Mostrar tu DNI</h2>
+      <p class="qr-options-subtitle">Elige los datos que verán cuando verifiquen tu DNI. Tienes tres opciones:</p>
+
+      <!-- Tres tarjetas de opciones idénticas a la imagen original -->
+      <div class="qr-cards-list">
+        <!-- Tarjeta 1: DNI edad -->
+        <button id="btn-opt-dni-edad" type="button" class="qr-option-card"
+          onclick="window.openCustomQrScreen && window.openCustomQrScreen('edad')">
+          <div class="qr-badge-circle">
+            <img src="qr_logo_edad.png" alt="DNI edad" class="qr-badge-img">
+          </div>
+          <div class="qr-card-text">
+            <h3 class="qr-card-title">DNI edad</h3>
+            <p class="qr-card-desc">Compartirás tu foto, DNI y si eres mayor de edad.</p>
+          </div>
+        </button>
+
+        <!-- Tarjeta 2: DNI simple -->
+        <button id="btn-opt-dni-simple" type="button" class="qr-option-card"
+          onclick="window.openCustomQrScreen && window.openCustomQrScreen('simple')">
+          <div class="qr-badge-circle">
+            <img src="qr_logo_simple.png" alt="DNI simple" class="qr-badge-img">
+          </div>
+          <div class="qr-card-text">
+            <h3 class="qr-card-title">DNI simple</h3>
+            <p class="qr-card-desc">Compartirás tu foto, DNI, apellidos, nombre, fecha de nacimiento, sexo y fecha de
+              validez del DNI.</p>
+          </div>
+        </button>
+
+        <!-- Tarjeta 3: DNI completo -->
+        <button id="btn-opt-dni-completo" type="button" class="qr-option-card"
+          onclick="window.openCustomQrScreen && window.openCustomQrScreen('completo')">
+          <div class="qr-badge-circle">
+            <img src="qr_logo_completo.png" alt="DNI completo" class="qr-badge-img">
+          </div>
+          <div class="qr-card-text">
+            <h3 class="qr-card-title">DNI completo</h3>
+            <p class="qr-card-desc">Compartirás todos los datos de tu DNI.</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       MODAL DE AUTENTICACIÓN BIOMÉTRICA (HUELLA DACTILAR / FACE ID)
+       ======================================================== -->
+  <div id="biometric-modal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="biometric-sheet">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-header">
+        <div class="sheet-badge">
+          <img src="icono_app.png" alt="MiDNI" class="sheet-logo" onerror="this.src='logo.png'">
+        </div>
+        <h2 id="bio-sheet-title" class="sheet-title">Verificación de identidad</h2>
+        <p id="bio-sheet-subtitle" class="sheet-subtitle">Coloca tu huella en el sensor para acceder a tu DNI</p>
+      </div>
+
+      <!-- Sensor de Huella Interactivo (Android / Touch ID) -->
+      <div id="fingerprint-container" class="fingerprint-container">
+        <div id="fingerprint-sensor" class="fingerprint-sensor" role="button" tabindex="0" aria-label="Escanear huella">
+          <div class="sensor-ripple ripple-1"></div>
+          <div class="sensor-ripple ripple-2"></div>
+          <div class="sensor-icon-wrapper">
+            <!-- SVG de huella dactilar ultra detallado -->
+            <svg class="fp-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"></path>
+              <path d="M14 13.12c0 2.38 0 6.38-1 8.88"></path>
+              <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"></path>
+              <path d="M2 12a10 10 0 0 1 18-6"></path>
+              <path d="M2 16h.01"></path>
+              <path d="M21.8 16c.2-2 .131-5.354 0-6"></path>
+              <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"></path>
+              <path d="M8.65 22c.21-.66.45-1.32.57-2"></path>
+              <path d="M9 6.8a6 6 0 0 1 9 5.2v2"></path>
+            </svg>
+            <!-- Checkmark animado al completar verificación -->
+            <svg class="fp-check hidden" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+        <span id="fp-status" class="fp-status-text">Toca el sensor de huella</span>
+      </div>
+
+      <!-- Sensor de Face ID Interactivo (Específico para iPhone / iOS) -->
+      <div id="faceid-container" class="faceid-container hidden">
+        <div id="faceid-sensor" class="faceid-sensor" role="button" tabindex="0" aria-label="Autenticar con Face ID">
+          <div class="faceid-radar"></div>
+          <div class="faceid-icon-wrapper">
+            <svg class="faceid-svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <!-- Cuatro esquinas de encuadre Face ID -->
+              <path d="M 20 34 L 20 20 L 34 20" />
+              <path d="M 80 34 L 80 20 L 66 20" />
+              <path d="M 20 66 L 20 80 L 34 80" />
+              <path d="M 80 66 L 80 80 L 66 80" />
+              <!-- Ojos -->
+              <line x1="38" y1="40" x2="38" y2="44" stroke-width="5" />
+              <line x1="62" y1="40" x2="62" y2="44" stroke-width="5" />
+              <!-- Nariz y boca sonriente -->
+              <path d="M 50 39 L 50 56 L 43 56" stroke-width="4.5" />
+              <path d="M 36 67 C 43 75, 57 75, 64 67" stroke-width="4.5" />
+            </svg>
+            <svg class="faceid-check hidden" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+        <span id="faceid-status" class="faceid-status-text">Toca para desbloquear con Face ID</span>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="sheet-actions">
+        <button id="btn-toggle-bio-mode" type="button" class="btn-sheet-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          <span id="bio-mode-text">Cambiar a Face ID</span>
+        </button>
+        <button id="btn-use-pin" class="btn-sheet-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Usar PIN de acceso</span>
+        </button>
+        <button id="btn-cancel-bio" class="btn-sheet-text">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL DE PIN NUMÉRICO (FALLBACK)
+       ======================================================== -->
+  <div id="pin-modal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="pin-sheet">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-header">
+        <h2 class="sheet-title">Introduce tu PIN</h2>
+        <p class="sheet-subtitle">Código de seguridad de 6 dígitos</p>
+      </div>
+
+      <!-- Indicadores de dígitos -->
+      <div class="pin-dots-container">
+        <div class="pin-dot" data-index="0"></div>
+        <div class="pin-dot" data-index="1"></div>
+        <div class="pin-dot" data-index="2"></div>
+        <div class="pin-dot" data-index="3"></div>
+        <div class="pin-dot" data-index="4"></div>
+        <div class="pin-dot" data-index="5"></div>
+      </div>
+
+      <!-- Teclado Numérico -->
+      <div class="keypad-grid">
+        <button class="key-btn" data-key="1">1</button>
+        <button class="key-btn" data-key="2">2</button>
+        <button class="key-btn" data-key="3">3</button>
+        <button class="key-btn" data-key="4">4</button>
+        <button class="key-btn" data-key="5">5</button>
+        <button class="key-btn" data-key="6">6</button>
+        <button class="key-btn" data-key="7">7</button>
+        <button class="key-btn" data-key="8">8</button>
+        <button class="key-btn" data-key="9">9</button>
+        <button class="key-btn key-empty" disabled></button>
+        <button class="key-btn" data-key="0">0</button>
+        <button class="key-btn key-del" data-action="backspace" aria-label="Borrar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+            <line x1="18" y1="9" x2="12" y2="15"></line>
+            <line x1="12" y1="9" x2="18" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sheet-actions">
+        <button id="btn-cancel-pin" class="btn-sheet-text">Volver a Huella</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       PANTALLA DE CÓDIGO QR OFICIAL DNI DIGITAL (CALCADA A LA OFICIAL)
+       ======================================================== -->
+  <section id="qr-display-screen" class="qr-display-screen hidden" aria-hidden="true">
+    <!-- Cabecera superior con ondas y botón cerrar -->
+    <header class="qr-display-header">
+      <div class="qr-waves-strip">
+        <canvas id="qr-waves-canvas" class="qr-waves-canvas"></canvas>
+      </div>
+
+      <div class="qr-header-bar">
+        <div class="qr-header-spacer"></div>
+        <div class="logo">
+          <img src="logo.png" alt="MiDNI" class="logo-img">
+        </div>
+        <button id="btn-close-qr" type="button" class="qr-screen-close-btn" aria-label="Cerrar"
+          onclick="window.hideQrDisplayScreen && window.hideQrDisplayScreen()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#162a4d" stroke-width="2.2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenido principal centrado -->
+    <div class="qr-display-body">
+      <!-- Fila superior: Emblema Policía y modo + Foto a la derecha -->
+      <div class="qr-identity-row">
+        <div class="qr-emblem-col">
+          <img src="emblema_policia.png" alt="Policía Nacional" class="qr-police-emblem">
+          <div class="qr-mode-text-group">
+            <span class="qr-mode-dni">DNI</span>
+            <span id="qr-screen-mode-title" class="qr-mode-type">EDAD</span>
+          </div>
+        </div>
+
+        <div class="qr-photo-box">
+          <img src="foto_perfil.png" alt="Fotografía Alejandra de la Torre" class="qr-person-photo">
+        </div>
+      </div>
+
+      <!-- Código QR central de alta densidad -->
+      <div class="qr-code-wrapper">
+        <img id="qr-code-img" src="qr_edad_exact.png" alt="Código QR DNI Digital" class="qr-code-image">
+        <canvas id="dni-qr-canvas" width="388" height="388" class="dni-qr-canvas" style="display: none;"></canvas>
+      </div>
+
+      <!-- Texto descriptivo según el tipo de QR -->
+      <p id="qr-display-desc" class="qr-display-desc">Compartirás tu foto, DNI y si eres mayor de edad.</p>
+
+      <!-- Logo inferior Policía Nacional -->
+      <div class="qr-police-logo-wrapper">
+        <img src="logo_policia.png" alt="Policía Nacional" class="qr-police-logo-img">
+      </div>
+    </div>
+
+    <!-- Barra azul fija inferior: QR visible 60 segundos -->
+    <div id="qr-timer-bar" class="qr-timer-bar">
+      <span id="qr-timer-text" class="qr-timer-text">QR visible 60 segundos</span>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       PANTALLA DE ESCÁNER (OFICIAL MIDNI)
+       ======================================================== -->
+  <section id="scanner-screen" class="scanner-screen hidden" aria-hidden="true">
+    <!-- Barra superior con 'Escáner QR' y la 'X' más grande a la derecha -->
+    <header class="scanner-top-bar">
+      <div class="scanner-header-spacer"></div>
+      <h1 class="scanner-title">Escáner QR</h1>
+      <button id="btn-back-scanner" type="button" class="scanner-btn-close" aria-label="Cerrar"
+        onclick="window.hideScannerScreen && window.hideScannerScreen()">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Cuerpo principal con el cuadrado al centro y el texto explicativo debajo -->
+    <div class="scanner-main-body">
+      <!-- Cuadrado central con líneas completamente rectas (sin láser) -->
+      <div id="scanner-box" class="scanner-center-box"
+        onclick="window.triggerSimulatedScan && window.triggerSimulatedScan()">
+        <video id="scanner-video" class="scanner-live-video" playsinline webkit-playsinline autoplay muted></video>
+        <div class="scanner-simulated-view"></div>
+        <!-- 4 esquinas del visor con líneas rectas (ángulos de 90 grados) -->
+        <div class="sc-corner top-left"></div>
+        <div class="sc-corner top-right"></div>
+        <div class="sc-corner bottom-left"></div>
+        <div class="sc-corner bottom-right"></div>
+      </div>
+
+      <!-- Texto explicativo en blanco debajo del cuadrado -->
+      <p class="scanner-instruction-text">Para un escaneo correcto debe haber buena iluminación.</p>
+    </div>
+
+    <!-- Logotipo de la Policía en la misma posición y tamaño que en la página de inicio -->
+    <footer class="scanner-footer">
+      <img src="logo_policia_white.png" alt="Policía Nacional" class="scanner-police-logo"
+        onerror="this.src='logo_policia.png'">
+    </footer>
+  </section>
+
+  <!-- ========================================================
+       MODAL DE RESULTADO DE VERIFICACIÓN OFICIAL (DGP / MIDNI)
+       ======================================================== -->
+  <div id="scan-result-modal" class="scan-result-modal hidden">
+    <div class="scan-result-backdrop" onclick="window.hideScanResult && window.hideScanResult()"></div>
+    <div class="scan-result-sheet">
+      <div class="scan-result-handle"></div>
+
+      <!-- Cabecera de resultado válido con check verde y logo policía -->
+      <div class="scan-result-status-header">
+        <div class="scan-result-badge-success">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="scan-result-title">DOCUMENTO VÁLIDO</h3>
+        <p class="scan-result-subtitle">Firma digital de la Policía Nacional verificada</p>
+      </div>
+
+      <!-- Tarjeta con los datos contrastados del ciudadano -->
+      <div class="scan-result-card">
+        <!-- Fila superior: Emblema policía + Modo de DNI + Foto -->
+        <div class="scan-card-top-row">
+          <div class="scan-card-emblem-col">
+            <img src="emblema_policia.png" alt="Policía Nacional" class="scan-card-emblem">
+            <div class="scan-card-mode-badge">
+              <span class="scan-badge-dni">DNI</span>
+              <span id="scan-res-mode" class="scan-badge-type">EDAD</span>
+            </div>
+          </div>
+          <div class="scan-card-photo-box">
+            <img src="foto_perfil.png" alt="Fotografía verificado" class="scan-card-photo">
+          </div>
+        </div>
+
+        <!-- Lista de campos oficiales verificados -->
+        <div class="scan-card-fields">
+          <div class="scan-field-row">
+            <span class="scan-field-label">Titular</span>
+            <span id="scan-res-name" class="scan-field-val">ALEJANDRA DE LA TORRE GARCIA</span>
+          </div>
+
+          <div class="scan-field-row">
+            <span class="scan-field-label">Documento</span>
+            <span id="scan-res-doc" class="scan-field-val">0474408J</span>
+          </div>
+
+          <div class="scan-field-row">
+            <span class="scan-field-label">Mayor de edad</span>
+            <span id="scan-res-age" class="scan-field-val scan-badge-legal-age">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              SÍ
+            </span>
+          </div>
+
+          <div class="scan-field-row">
+            <span class="scan-field-label">Fecha de comprobación</span>
+            <span id="scan-res-timestamp" class="scan-field-val timestamp-val">24/10/2026 16:55:10</span>
+          </div>
+
+          <div class="scan-field-row">
+            <span class="scan-field-label">Emisor / Autoridad</span>
+            <span class="scan-field-val authority-val">DIRECCIÓN GENERAL DE LA POLICÍA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso legal de privacidad obligatorio (RGPD) -->
+      <div class="scan-privacy-notice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Por motivos de seguridad y privacidad, estos datos no se almacenan en este dispositivo.</span>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="scan-result-actions">
+        <button id="btn-close-scan-result" type="button" class="btn-scan-primary"
+          onclick="window.hideScanResult && window.hideScanResult()">
+          Aceptar
+        </button>
+        <button id="btn-scan-another" type="button" class="btn-scan-secondary"
+          onclick="window.rescanQr && window.rescanQr()">
+          Escanear otro código
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

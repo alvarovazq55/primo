@@ -1,0 +1,2385 @@
+/* ========================================================
+   RESET Y ESTILOS GLOBALES MÓVIL (iOS / Android / PWA)
+   ======================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #ffffff;
+  color: #1a202c;
+  -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  overscroll-behavior-y: none;
+  touch-action: pan-y;
+}
+
+/* ========================================================
+   PANTALLA DE CARGA (SPLASH SCREEN)
+   ======================================================== */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100dvh;
+  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 20px) 16px;
+}
+
+#splash-img {
+  width: auto;
+  max-width: 90%;
+  height: 100%;
+  max-height: 90vh;
+  max-height: 90dvh;
+  object-fit: contain;
+  display: block;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.splash-placeholder {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #888888;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #0076c5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ========================================================
+   CONTENEDOR PRINCIPAL - INTERFAZ CLONADA MIDNI
+   ======================================================== */
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Cabecera arriba, ondas en medio, BOTONERA ABAJO DEL TODO */
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.app-container.hidden {
+  display: none;
+  opacity: 0;
+}
+
+/* --- 1. BARRA SUPERIOR (HEADER) --- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 4px 20px;
+  background: #ffffff;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+}
+
+.icon-btn:active {
+  background-color: #f1f5f9;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  height: 23px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  display: block;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.notify-dot {
+  width: 9px;
+  height: 9px;
+  background-color: #0076c5;
+  border-radius: 50%;
+  margin-right: 2px;
+}
+
+/* --- 2. CONTENEDOR CENTRAL DE ONDAS --- */
+.waves-container {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-start; /* Empieza inmediatamente bajo la cabecera */
+  justify-content: center;
+  padding: 0 10px;
+  margin-top: 0px;
+  overflow: hidden;
+}
+
+.waves-bg-img {
+  --wh: clamp(330px, 44vh, 420px);
+  width: 100%;
+  max-width: 410px;
+  height: var(--wh);
+  margin: 0 auto;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  background: transparent;
+  /* Suave difuminado en bordes superior e inferior para integración idéntica al vídeo original */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 12px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8px, black calc(100% - 12px), transparent 100%);
+}
+
+/* --- 3. SECCIÓN DE PERFIL Y BOTONERA (ELEVADA Y CENTRADA EN EL TERCIO INFERIOR) --- */
+.profile-section {
+  width: 100%;
+  max-width: 410px;
+  margin: 0 auto 28px auto; /* Elevada respecto al pie de página */
+  display: flex;
+  align-items: flex-start; /* Alineado justo al inicio superior de la foto */
+  padding: 0 22px 0 22px;
+  gap: 18px;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Foto DNI sin fondo y con proporción fiel a la referencia */
+.profile-photo-wrapper {
+  width: 122px;
+  height: 154px;
+  flex-shrink: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left top;
+  display: block;
+  background: transparent;
+  -webkit-mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
+}
+
+/* Texto y botón alineados con el inicio de la foto */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 2px; /* Enrasado perfecto con el borde superior de la cabeza */
+  flex: 1;
+}
+
+.greeting-sub {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #112548;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.btn-primary {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #0b2246;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  padding: 0 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+  width: 100%;
+  max-width: 195px;
+  height: 44px;
+  box-shadow: 0 2px 6px rgba(11, 34, 70, 0.22);
+}
+
+.btn-primary:active {
+  background-color: #06152a;
+  transform: scale(0.98);
+}
+
+/* --- 4. LOGOTIPO POLICÍA NACIONAL (ABAJO DEL TODO) --- */
+.app-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 20px 32px 20px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.footer-police-logo {
+  height: 17px;
+  max-width: 115px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* ========================================================
+   PANTALLA DE "VER MI DNI" (DNI-SCREEN)
+   ======================================================== */
+.dni-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.dni-screen.hidden {
+  display: none;
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.dni-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 6px 20px;
+  background: #ffffff;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.header-back-btn {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+}
+
+.header-back-btn:active {
+  background-color: #f1f5f9;
+}
+
+.header-right-spacer {
+  width: 36px;
+  height: 36px;
+}
+
+/* --- BANDA DE ONDAS DE SEGURIDAD SUPERIOR --- */
+.dni-waves-strip {
+  width: 100%;
+  height: 52px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.dni-waves-strip .dni-waves-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+/* --- BLOQUE SUPERIOR FIJO: IDENTIDAD Y BOTÓN MOSTRAR DNI --- */
+.dni-fixed-top {
+  flex-shrink: 0;
+  background: #ffffff;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- CONTENEDOR CON SCROLL: ÚNICAMENTE CAMPOS POR DEBAJO DEL BOTÓN QR --- */
+.dni-fields-scroll,
+.dni-content-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: relative;
+  z-index: 10;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* --- BLOQUE DE IDENTIDAD: FOTO Y CABECERA OFICIAL --- */
+.dni-identity-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 18px 4px 18px;
+  gap: 16px;
+  background: #ffffff;
+}
+
+/* Foto de carnet (recorte limpio con desvanecido inferior suave) */
+.dni-photo-container {
+  width: 102px;
+  height: 132px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.dni-person-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+/* Columna de escudo, textos y banderas */
+.dni-official-col {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 130px;
+}
+
+/* Banderas en la esquina superior derecha */
+.dni-flags-stack {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 5;
+}
+
+.flag-es {
+  width: 25px;
+  height: 16px;
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.flag-es-red {
+  flex: 1;
+  background: #D6001F;
+}
+
+.flag-es-yellow {
+  flex: 2;
+  background: #FFC400;
+}
+
+.flag-eu {
+  width: 25px;
+  height: 16px;
+  border-radius: 2px;
+  background: #003399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.flag-eu-stars-circle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  font-size: 5px;
+  color: #ffcc00;
+  opacity: 0.85;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.flag-eu-code {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  z-index: 2;
+  letter-spacing: 0.4px;
+}
+
+/* Escudo de España centrado sobre el texto o alineado con él */
+.dni-escudo-wrapper {
+  margin-top: 2px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.dni-escudo-img {
+  height: 58px;
+  width: auto;
+  display: block;
+}
+
+/* Textos REINO DE ESPAÑA y Documento Nacional de Identidad */
+.dni-title-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dni-reino-title {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: #1b2a4a;
+  line-height: 1.15;
+  letter-spacing: -0.2px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.dni-doc-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #556885;
+  line-height: 1.25;
+  margin: 3px 0 0 0;
+}
+
+/* --- BOTÓN ANCHO "MOSTRAR MI DNI" --- */
+.dni-btn-row {
+  padding: 12px 18px 14px 18px;
+  width: 100%;
+  position: relative;
+  z-index: 30;
+}
+
+.btn-mostrar-dni {
+  width: 100%;
+  background-color: #1f2d52;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-shadow: 0 2px 4px rgba(31, 45, 82, 0.2);
+  transition: transform 0.1s ease, background-color 0.15s ease;
+  position: relative;
+  z-index: 31;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-mostrar-dni * {
+  pointer-events: none;
+}
+
+.btn-mostrar-dni:active {
+  background-color: #141f39;
+  transform: scale(0.985);
+}
+
+.qr-icon {
+  width: 19px;
+  height: 19px;
+  stroke: #ffffff;
+  flex-shrink: 0;
+}
+
+/* --- LISTA VERTICAL DE CAMPOS DE DATOS --- */
+.dni-fields-list {
+  padding: 4px 20px 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+/* --- ENCABEZADOS DE SECCIÓN OFICIALES DNI --- */
+.dni-section-header {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  letter-spacing: -0.1px;
+  margin-top: 14px;
+  margin-bottom: 2px;
+  padding: 6px 12px;
+  background-color: #f1f5f9;
+  border-left: 3.5px solid #0082fb;
+  border-radius: 0 6px 6px 0;
+}
+
+.dni-section-header:first-child {
+  margin-top: 2px;
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-data-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+}
+
+.cert-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #059669;
+  background-color: #ecfdf5;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.cert-status-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cert-expiry-text {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.field-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: 0.1px;
+}
+
+.field-data {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.field-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.btn-toggle-blur {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.btn-toggle-blur:active {
+  background-color: #e2e8f0;
+}
+
+/* --- BARRA AZUL FIJA INFERIOR: INFORMACIÓN VISIBLE XX SEGUNDOS --- */
+.dni-timer-bar {
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 64px;
+  background-color: #0082fb;
+  color: #ffffff;
+  padding: 9px 16px calc(24px + env(safe-area-inset-bottom, 12px)) 16px;
+  text-align: center;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-shadow: 0 -2px 8px rgba(0, 130, 251, 0.2);
+}
+
+.dni-timer-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.81rem;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  color: #ffffff;
+  user-select: none;
+  line-height: 1.2;
+}
+
+/* ========================================================
+   MODALES Y HOJAS INFERIORES (BIOMETRIC & PIN)
+   ======================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  background: rgba(11, 28, 52, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.biometric-sheet,
+.pin-sheet {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 12px)) 24px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  background-color: #cbd5e1;
+  border-radius: 2px;
+  margin-bottom: 16px;
+}
+
+.sheet-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.sheet-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.sheet-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.sheet-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0b2241;
+  margin-bottom: 4px;
+}
+
+.sheet-subtitle {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  max-width: 280px;
+  line-height: 1.35;
+}
+
+/* Sensor de Huella */
+.fingerprint-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0 24px 0;
+}
+
+.fingerprint-sensor {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0f7ff, #e2effd);
+  border: 2px solid #bae0fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.15s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 118, 197, 0.15);
+}
+
+.fingerprint-sensor:active {
+  transform: scale(0.95);
+}
+
+.sensor-ripple {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid #0076c5;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fingerprint-sensor.scanning .ripple-1 {
+  animation: ripplePulse 1.4s ease-out infinite;
+}
+
+.fingerprint-sensor.scanning .ripple-2 {
+  animation: ripplePulse 1.4s ease-out infinite 0.7s;
+}
+
+@keyframes ripplePulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+
+.sensor-icon-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fp-svg {
+  width: 40px;
+  height: 40px;
+  color: #0076c5;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.fingerprint-sensor.scanning .fp-svg {
+  color: #0284c7;
+  animation: fpBreathe 1s ease-in-out infinite alternate;
+}
+
+@keyframes fpBreathe {
+  from { filter: drop-shadow(0 0 2px rgba(0,118,197,0.4)); opacity: 0.8; }
+  to { filter: drop-shadow(0 0 8px rgba(0,118,197,0.9)); opacity: 1; }
+}
+
+.fingerprint-sensor.success {
+  background: #10b981;
+  border-color: #059669;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45);
+}
+
+.fingerprint-sensor.success .fp-svg {
+  display: none;
+}
+
+.fingerprint-sensor.success .fp-check {
+  display: block;
+  width: 38px;
+  height: 38px;
+  animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.fp-status-text {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.fp-status-text.success {
+  color: #059669;
+  font-weight: 700;
+}
+
+/* --- FACE ID SENSOR (iPHONE / iOS) --- */
+.faceid-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0 24px 0;
+}
+
+.faceid-sensor {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f0f7ff, #e2effd);
+  border: 2px solid #bae0fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  transition: transform 0.15s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 118, 197, 0.15);
+}
+
+.faceid-sensor:active {
+  transform: scale(0.95);
+}
+
+.faceid-radar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #0076c5, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.faceid-sensor.scanning .faceid-radar {
+  opacity: 1;
+  animation: faceidScan 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes faceidScan {
+  0% { top: 10%; }
+  100% { top: 85%; }
+}
+
+.faceid-icon-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faceid-svg {
+  width: 48px;
+  height: 48px;
+  color: #0076c5;
+  transition: opacity 0.2s, color 0.2s, transform 0.2s;
+}
+
+.faceid-sensor.scanning .faceid-svg {
+  color: #0284c7;
+  animation: faceidBreathe 1s ease-in-out infinite alternate;
+}
+
+@keyframes faceidBreathe {
+  from { transform: scale(0.97); opacity: 0.85; }
+  to { transform: scale(1.03); opacity: 1; }
+}
+
+.faceid-sensor.success {
+  background: #10b981;
+  border-color: #059669;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45);
+}
+
+.faceid-sensor.success .faceid-svg {
+  display: none;
+}
+
+.faceid-sensor.success .faceid-check {
+  display: block;
+  width: 40px;
+  height: 40px;
+  animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.faceid-status-text {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.faceid-status-text.success {
+  color: #059669;
+  font-weight: 700;
+}
+
+.sheet-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-sheet-secondary {
+  width: 100%;
+  background: #f1f5f9;
+  color: #0b2241;
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s;
+}
+
+.btn-sheet-secondary:active {
+  background-color: #e2e8f0;
+}
+
+.btn-sheet-text {
+  background: none;
+  border: none;
+  outline: none;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.btn-sheet-text:active {
+  color: #0b2241;
+}
+
+/* --- TECLADO PIN --- */
+.pin-dots-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0 24px 0;
+}
+
+.pin-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: transparent;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pin-dot.filled {
+  border-color: #0b2241;
+  background: #0b2241;
+  transform: scale(1.15);
+}
+
+.pin-dot.success {
+  border-color: #10b981;
+  background: #10b981;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px;
+  width: 100%;
+  max-width: 290px;
+  margin-bottom: 18px;
+}
+
+.key-btn {
+  height: 56px;
+  border-radius: 28px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #0b2241;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.1s, transform 0.1s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.key-btn:active {
+  background-color: #e2e8f0;
+  transform: scale(0.93);
+}
+
+.key-empty {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.key-del {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+/* ========================================================
+   PANTALLA COMPLETA DE CÓDIGO QR OFICIAL DNI DIGITAL
+   ======================================================== */
+.qr-display-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.qr-display-screen.visible {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.qr-display-screen.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.qr-screen-close-btn * {
+  pointer-events: none;
+}
+
+.qr-display-header {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.qr-waves-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.qr-waves-strip .qr-waves-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.qr-header-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: env(safe-area-inset-top, 8px) 16px 8px 16px;
+  height: 100%;
+}
+
+.qr-header-spacer {
+  width: 36px;
+  height: 36px;
+}
+
+.qr-screen-close-btn {
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.15s;
+}
+
+.qr-screen-close-btn:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.qr-display-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 24px 12px 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.qr-identity-row {
+  width: 100%;
+  max-width: 330px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.qr-emblem-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.qr-police-emblem {
+  height: 62px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-mode-text-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.qr-mode-dni {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #122443;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+}
+
+.qr-mode-type {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #122443;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.qr-photo-box {
+  width: 98px;
+  height: 124px;
+  flex-shrink: 0;
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.qr-person-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+  display: block;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.qr-code-wrapper {
+  width: 100%;
+  max-width: 330px;
+  margin: 8px auto 6px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-code-image,
+.dni-qr-canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.qr-display-desc {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.94rem;
+  font-weight: 400;
+  color: #1e293b;
+  text-align: center;
+  max-width: 310px;
+  margin: 6px auto 10px auto;
+  line-height: 1.35;
+}
+
+.qr-police-logo-wrapper {
+  margin: 2px auto 10px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-police-logo-img {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-timer-bar {
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 52px;
+  background-color: #76a7ef;
+  color: #ffffff;
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)) 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.qr-timer-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+/* ========================================================
+   PANTALLA DE "MOSTRAR TU DNI" (ELECCIÓN DE DATOS PARA QR)
+   ======================================================== */
+.qr-options-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  transform: translateX(100%);
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.qr-options-screen.visible {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.qr-options-screen.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.header-back-btn * {
+  pointer-events: none;
+}
+
+.qr-options-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: env(safe-area-inset-top, 10px) 16px 6px 16px;
+  background: #ffffff;
+  min-height: 52px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.qr-options-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 18px calc(env(safe-area-inset-bottom, 16px) + 16px) 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-ill-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.qr-ill-svg {
+  width: 215px;
+  max-width: 62vw;
+  height: auto;
+  aspect-ratio: 260 / 200;
+  display: block;
+}
+
+.qr-options-title {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #122744;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+
+.qr-options-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #4b5e78;
+  text-align: center;
+  line-height: 1.35;
+  max-width: 310px;
+  margin-bottom: 16px;
+}
+
+.qr-cards-list {
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qr-option-card {
+  width: 100%;
+  background-color: #0b2144;
+  border-radius: 9px;
+  padding: 11px 14px 12px 14px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(11, 33, 68, 0.18);
+  transition: transform 0.12s ease, background-color 0.15s ease;
+}
+
+.qr-option-card * {
+  pointer-events: none;
+}
+
+.qr-option-card:active {
+  transform: scale(0.985);
+  background-color: #081935;
+}
+
+.qr-badge-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  margin-top: 1px;
+}
+
+.qr-badge-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.qr-card-title {
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.1px;
+  margin: 0;
+}
+
+.qr-card-desc {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.34;
+  opacity: 0.98;
+  margin: 0;
+}
+
+/* ========================================================
+   PANTALLA DE ESCÁNER (MINIMALISTA OFICIAL MIDNI)
+   Fondo azul marino, cuadrado al centro, logo debajo y X arriba a la derecha
+   ======================================================== */
+.scanner-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0b2144;
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scanner-screen.visible {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.scanner-screen.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* 1. Barra superior con título "Escáner QR" y la "X" grande a la derecha */
+.scanner-top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 14px) + 12px) 16px 8px 16px;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.scanner-header-spacer {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.scanner-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+  letter-spacing: 0.2px;
+}
+
+.scanner-btn-close {
+  background: none;
+  border: none;
+  outline: none;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  color: #ffffff;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.scanner-btn-close * {
+  pointer-events: none;
+}
+
+.scanner-btn-close:active {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: scale(0.92);
+}
+
+/* 2. Cuerpo central con el cuadrado grande de líneas rectas y texto explicativo debajo */
+.scanner-main-body {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 24px;
+}
+
+/* Cuadrado central de escaneo más grande y con líneas completamente rectas */
+.scanner-center-box {
+  position: relative;
+  width: 290px;
+  height: 290px;
+  max-width: 82vw;
+  max-height: 82vw;
+  aspect-ratio: 1 / 1;
+  border-radius: 0; /* Líneas completamente rectas, sin curvatura */
+  overflow: hidden;
+  background-color: #06132b;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.scanner-live-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.scanner-simulated-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #132a54 0%, #06132b 100%);
+  z-index: 0;
+}
+
+/* Esquinas de enfoque con líneas completamente rectas (90 grados, sin curvas) */
+.sc-corner {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: #ffffff;
+  border-style: solid;
+  border-radius: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: border-color 0.2s ease;
+}
+
+.sc-corner.top-left {
+  top: 0;
+  left: 0;
+  border-width: 4px 0 0 4px;
+}
+
+.sc-corner.top-right {
+  top: 0;
+  right: 0;
+  border-width: 4px 4px 0 0;
+}
+
+.sc-corner.bottom-left {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 4px 4px;
+}
+
+.sc-corner.bottom-right {
+  bottom: 0;
+  right: 0;
+  border-width: 0 4px 4px 0;
+}
+
+.scanner-center-box.verified .sc-corner {
+  border-color: #10b981;
+}
+
+/* Texto explicativo en blanco debajo del cuadrado */
+.scanner-instruction-text {
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-align: center;
+  margin: 28px 0 0 0;
+  padding: 0 28px;
+  line-height: 1.45;
+  letter-spacing: 0.1px;
+  opacity: 0.95;
+}
+
+/* 3. Logotipo oficial de la Policía Nacional abajo del todo (misma posición y tamaño que página de inicio) */
+.scanner-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 20px calc(env(safe-area-inset-bottom, 20px) + 12px) 20px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.scanner-police-logo {
+  height: 17px;
+  max-width: 115px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* ========================================================
+   MODAL DE RESULTADO DE VERIFICACIÓN OFICIAL (DGP / MIDNI)
+   ======================================================== */
+.scan-result-modal {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: auto;
+  transition: opacity 0.25s ease;
+}
+
+.scan-result-modal.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.scan-result-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.scan-result-sheet {
+  position: relative;
+  z-index: 2;
+  background: #ffffff;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)) 20px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: slideUpSheet 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.scan-result-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #cbd5e1;
+  margin-bottom: 14px;
+}
+
+.scan-result-status-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.scan-result-badge-success {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+}
+
+.scan-result-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0b2144;
+  margin: 0 0 3px 0;
+  letter-spacing: 0.3px;
+}
+
+.scan-result-subtitle {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #10b981;
+  margin: 0;
+}
+
+/* Tarjeta de datos contrastados */
+.scan-result-card {
+  width: 100%;
+  max-width: 380px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.scan-card-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.scan-card-emblem-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scan-card-emblem {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
+}
+
+.scan-card-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scan-badge-dni {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.scan-badge-type {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0284c7;
+}
+
+.scan-card-photo-box {
+  width: 72px;
+  height: 92px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.scan-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.scan-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.scan-field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.scan-field-label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.scan-field-val {
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+}
+
+.scan-badge-legal-age {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.timestamp-val {
+  font-family: monospace;
+  font-size: 0.84rem;
+  color: #475569;
+}
+
+.authority-val {
+  font-size: 0.78rem;
+  color: #0369a1;
+  font-weight: 800;
+}
+
+/* Aviso de privacidad */
+.scan-privacy-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 18px;
+  max-width: 340px;
+  line-height: 1.35;
+}
+
+.scan-privacy-notice svg {
+  flex-shrink: 0;
+}
+
+/* Botones de acción */
+.scan-result-actions {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-scan-primary {
+  width: 100%;
+  background: #0b2144;
+  color: #ffffff;
+  border: none;
+  outline: none;
+  padding: 13px 16px;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.btn-scan-primary:active {
+  background: #06152d;
+  transform: scale(0.985);
+}
+
+.btn-scan-secondary {
+  width: 100%;
+  background: #f1f5f9;
+  color: #334155;
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-scan-secondary:active {
+  background: #e2e8f0;
+}
+
+/* ========================================================
+   ESTILOS DEL MENÚ LATERAL DESPLEGABLE (DRAWER MIDNI)
+   ======================================================== */
+.side-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(6, 19, 43, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 150;
+  transition: opacity 0.26s ease;
+  opacity: 1;
+}
+
+.side-drawer-backdrop.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  max-width: 82vw;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 6px 0 28px rgba(0, 0, 0, 0.28);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(0);
+  overflow: hidden;
+}
+
+.side-drawer.hidden {
+  transform: translateX(-100%) !important;
+  pointer-events: none !important;
+}
+
+/* Cabecera del Drawer con perfil */
+.drawer-header {
+  background-color: #0b2144;
+  padding: calc(env(safe-area-inset-top, 14px) + 12px) 18px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.drawer-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.drawer-logo {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.drawer-btn-close {
+  background: none;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+  transition: background-color 0.15s ease;
+}
+
+.drawer-btn-close:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.drawer-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-avatar-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #38bdf8;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.drawer-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drawer-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drawer-user-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.1px;
+}
+
+.drawer-user-dni {
+  font-family: -apple-system, sans-serif;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.drawer-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: #10b981;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.drawer-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+}
+
+/* Lista de navegación del Drawer */
+.drawer-nav {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-nav-item {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #1e293b;
+  font-family: 'Montserrat', -apple-system, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.drawer-nav-item:active {
+  background-color: #f1f5f9;
+}
+
+.drawer-nav-item.active {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.drawer-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.drawer-nav-item.active .drawer-item-icon {
+  color: #0284c7;
+}
+
+.drawer-divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 8px 12px;
+}
+
+/* Pie del Drawer */
+.drawer-footer {
+  padding: 14px 18px calc(env(safe-area-inset-bottom, 14px) + 8px) 18px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background-color: #f8fafc;
+  flex-shrink: 0;
+}
+
+.drawer-police-logo {
+  height: 17px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.drawer-version-tag {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Modal de información del Drawer */
+.drawer-info-sheet {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px calc(env(safe-area-inset-bottom, 16px) + 20px) 20px;
+  display: flex;
+  flex-direction: column;
+  max-height: 82vh;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+  animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.drawer-info-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.drawer-info-close {
+  background: none;
+  border: none;
+  outline: none;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drawer-info-body {
+  overflow-y: auto;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawer-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.drawer-info-row-label {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.drawer-info-row-val {
+  font-weight: 500;
+  color: #0284c7;
+}
+
+
+
